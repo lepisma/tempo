@@ -1,6 +1,6 @@
 # Main script
 
-from PyQt4 import QtGui, QtCore, QtWebKit
+from PyQt4 import QtGui, QtCore
 
 class RightClickMenu(QtGui.QMenu):
     """
@@ -66,14 +66,10 @@ class MainWindow(QtGui.QWidget):
         self.layout.setMargin(0)
         self.layout.setSpacing(0)
 
-        self.view = QtWebKit.QWebView(self)
-        view_url = "./view/dash.html"
-        self.view.setUrl(QtCore.QUrl(view_url))
-
-        self.layout.addWidget(self.view, 0, 0, 1, 1)
         self.show()
 
     def closeEvent(self, event):
+        # On close, hide and show 'still runnning' message
         self.hide()
         QtCore.QTimer.singleShot(100, self.tray_icon.message)
         event.ignore()
