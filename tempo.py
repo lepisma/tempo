@@ -32,21 +32,18 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
         self.activated.connect(self.click_trap)
 
+    def message(self):
+        self.showMessage("tempo", "tempo is still running")
+
     def click_trap(self, value):
+        # Trigger for single click on tray icon
         if value == self.Trigger:
             self.show_dash()
-
-    def welcome(self):
-        self.showMessage("tempo", "Running in tray")
 
     def show_dash(self):
         if self.parent().isMinimized():
             self.parent().setWindowState(QtCore.Qt.WindowActive)
         self.parent().show()
-
-    def show(self):
-        QtGui.QSystemTrayIcon.show(self)
-        QtCore.QTimer.singleShot(100, self.welcome)
 
 class MainWindow(QtGui.QWidget):
     """
@@ -57,6 +54,7 @@ class MainWindow(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
 
         self.tray_icon = SystemTrayIcon(self)
+        self.tray_icon.show()
 
         self.init_ui()
 
@@ -77,6 +75,7 @@ class MainWindow(QtGui.QWidget):
 
     def closeEvent(self, event):
         self.hide()
+        QtCore.QTimer.singleShot(100, self.tray_icon.message)
         event.ignore()
 
 def main():
@@ -84,8 +83,6 @@ def main():
     app = QtGui.QApplication([])
 
     parent_widget = MainWindow()
-    tray_icon = SystemTrayIcon(parent_widget)
-    tray_icon.show()
     app.exec_()
 
 if __name__ == "__main__":
