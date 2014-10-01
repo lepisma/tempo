@@ -1,6 +1,7 @@
 # Main script
 
 from PyQt4 import QtGui, QtCore
+import os
 
 class RightClickMenu(QtGui.QMenu):
     """
@@ -27,7 +28,7 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
     def __init__(self, parent = None):
         QtGui.QSystemTrayIcon.__init__(self, parent)
-        self.setIcon(QtGui.QIcon("./icons/1.png"))
+        self.setIcon(QtGui.QIcon("./images/1.png"))
         self.setContextMenu(RightClickMenu(self))
 
         self.activated.connect(self.click_trap)
@@ -59,12 +60,39 @@ class MainWindow(QtGui.QWidget):
         self.init_ui()
 
     def init_ui(self):
-        self.resize(200, 400)
+        # Main frame
+        self.setFixedSize(180, 420)
         self.setWindowTitle("tempo")
-        self.setWindowIcon(QtGui.QIcon("./icons/1.png"))
+        self.setWindowIcon(QtGui.QIcon("./images/1.png"))
+
+        # Background
+        palette = QtGui.QPalette()
+        palette.setBrush(QtGui.QPalette.Background, QtGui.QBrush(QtGui.QPixmap("./images/back.png")))
+        self.setPalette(palette)
+
+        # Layout
         self.layout = QtGui.QGridLayout(self)
-        self.layout.setMargin(0)
-        self.layout.setSpacing(0)
+        self.layout.setMargin(40)
+        self.layout.setSpacing(20)
+        
+        # Weather icon
+        self.weather_image = QtGui.QLabel(self)
+        pixmap = QtGui.QPixmap("./images/rain.png")
+        self.weather_image.setPixmap(pixmap)
+
+        # Temperature out
+        self.temp_out_image = QtGui.QLabel(self)
+        pixmap = QtGui.QPixmap("./images/na.png")
+        self.temp_out_image.setPixmap(pixmap)
+
+        # Difference
+        self.temp_in_image = QtGui.QLabel(self)
+        pixmap = QtGui.QPixmap("./images/na.png")
+        self.temp_in_image.setPixmap(pixmap)
+
+        self.layout.addWidget(self.weather_image)
+        self.layout.addWidget(self.temp_out_image)
+        self.layout.addWidget(self.temp_in_image)
 
         self.show()
 
