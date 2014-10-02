@@ -32,10 +32,11 @@ class RequestThread(QtCore.QThread):
                 temp_out = -1
             else:
                 image_type = weather.icon
-                temp_out = (weather.temperature - 32.0) * (5.0 / 9.0)
+                temp_out = weather.temperature
 
             # Requesting arduino
-            temp_in = inside_temperature(arduino_port)
+            #temp_in = inside_temperature(arduino_port)
+            temp_in = -1
 
             # Emit signal
             self.emit(QtCore.SIGNAL("update_gui(PyQt_PyObject, float, float)"), image_type, temp_out, temp_in)
@@ -107,7 +108,7 @@ class MainWindow(QtGui.QWidget):
 
     def init_ui(self):
         # Main frame
-        self.setFixedSize(180, 420)
+        self.setFixedSize(400, 140)
         self.setWindowTitle("tempo")
         self.setWindowIcon(QtGui.QIcon("./images/1.png"))
 
@@ -117,9 +118,18 @@ class MainWindow(QtGui.QWidget):
         self.setPalette(palette)
 
         # Layout
-        self.layout = QtGui.QGridLayout(self)
-        self.layout.setMargin(40)
+        self.layout = QtGui.QHBoxLayout(self)
+        self.layout.setMargin(20)
         self.layout.setSpacing(20)
+
+        # Separator
+        self.sep = QtGui.QFrame()
+        self.sep.setFrameStyle(QtGui.QFrame.VLine)
+
+        # Font
+        font = QtGui.QFont("Segoe", 34, QtGui.QFont.Bold)
+        color_ss = "QLabel {color : rgb(65, 65, 65)}"
+        self.setStyleSheet(color_ss)
 
         # Weather icon
         self.weather_image = QtGui.QLabel(self)
@@ -127,14 +137,17 @@ class MainWindow(QtGui.QWidget):
 
         # Temperature out
         self.temp_out_image = QtGui.QLabel(self)
+        self.temp_out_image.setFont(font)
         self.clear_image(self.temp_out_image)
 
-        # Difference
+        # Temperature in
         self.temp_in_image = QtGui.QLabel(self)
+        self.temp_in_image.setFont(font)
         self.clear_image(self.temp_in_image)
 
         self.layout.addWidget(self.weather_image)
         self.layout.addWidget(self.temp_out_image)
+        self.layout.addWidget(self.sep)
         self.layout.addWidget(self.temp_in_image)
 
         self.show()
@@ -151,8 +164,8 @@ class MainWindow(QtGui.QWidget):
         """
         Shows the temperature in celsius in given label
         """
-
-        label.setText(str(value) + "C")
+        deg = u'\N{DEGREE SIGN}'
+        label.setText(str(int(value)) + deg)
 
     def update_gui(self, image_type, temp_out, temp_in):
         """
