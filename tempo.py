@@ -1,7 +1,43 @@
 # Main script
 
 from PyQt4 import QtGui, QtCore
-import os
+
+import time, sys
+import json
+
+from outweather import current_weather
+
+try:
+    config = json.load(open("config.json"))
+except Error:
+    print("Error in reading config file.")
+    sys.exit()
+
+class RequestThread(QtCore.QThread):
+    """
+    Thread to interact with forecast.io and arduino and emit signal for updating the ui
+    """
+
+    def run(self):
+        while True:
+            # Requesting forecast
+            weather = current_weather(config["API_KEY"], config["lat"], config["lng"])
+
+            if weather == -1:
+                # Error in requesting
+                image_type = "na"
+                temp_out = -1
+            else:
+                image_type = weather.icon
+                temp_out = (weather.temperature - 32.0) * (5.0 / 9.0)
+
+            # Requesting arduino
+            
+
+            # Emit signal
+            self.emit(QtCore.SIGNAL("update_gui(PyQt_PyObject, float, float)"), image_type, temp_out, temp_in)
+            # Wait
+            time.sleep(4)
 
 class RightClickMenu(QtGui.QMenu):
     """
@@ -10,7 +46,7 @@ class RightClickMenu(QtGui.QMenu):
 
     def __init__(self, parent):
         QtGui.QMenu.__init__(self, "tempo")
-        
+
         # Show dash
         dash_action = QtGui.QAction("Dashboard", self)
         dash_action.triggered.connect(parent.show_dash)
@@ -54,10 +90,17 @@ class MainWindow(QtGui.QWidget):
     def __init__(self, parent = None):
         QtGui.QWidget.__init__(self, parent)
 
+        # Tray icon setup
         self.tray_icon = SystemTrayIcon(self)
         self.tray_icon.show()
 
+        # Ui initialization
         self.init_ui()
+
+        # Thread for communicating with forecast and arduino
+        self.requester = RequestThread()
+        self.connect(self.requester, QtCore.SIGNAL("update_gui(PyQt_PyObject, float, float)"), self.update_gui)
+        self.requester.start()
 
     def init_ui(self):
         # Main frame
@@ -74,21 +117,18 @@ class MainWindow(QtGui.QWidget):
         self.layout = QtGui.QGridLayout(self)
         self.layout.setMargin(40)
         self.layout.setSpacing(20)
-        
+
         # Weather icon
         self.weather_image = QtGui.QLabel(self)
-        pixmap = QtGui.QPixmap("./images/rain.png")
-        self.weather_image.setPixmap(pixmap)
+        self.clear_image(self.weather_image)
 
         # Temperature out
         self.temp_out_image = QtGui.QLabel(self)
-        pixmap = QtGui.QPixmap("./images/na.png")
-        self.temp_out_image.setPixmap(pixmap)
+        self.clear_image(self.temp_out_image)
 
         # Difference
         self.temp_in_image = QtGui.QLabel(self)
-        pixmap = QtGui.QPixmap("./images/na.png")
-        self.temp_in_image.setPixmap(pixmap)
+        self.clear_image(self.temp_in_image)
 
         self.layout.addWidget(self.weather_image)
         self.layout.addWidget(self.temp_out_image)
@@ -96,8 +136,50 @@ class MainWindow(QtGui.QWidget):
 
         self.show()
 
+    def clear_image(self, label):
+        """
+        Sets N/A image in label
+        """
+
+        pixmap = QtGui.QPixmap("./images/na.png")
+        label.setPixmap(pixmap)
+
+    def show_temp(self, label, value):
+        """
+        Shows the temperature in celsius in given label
+        """
+
+        pass
+
+    def update_gui(self, image_type, temp_out, temp_in):
+        """
+        Updates the weather image and the temperature
+        """
+
+        if temp_in == -1:
+            # Temperature not found
+            self.clear_image(self.temp_in_image)
+        else:
+            # Displaying
+            self.show_temp(self.temp_in_image, temp_in)
+
+        if temp_out == -1:
+            # Temperature not found
+            self.clear_image(self.temp_out_image)
+        else:
+            # Displaying
+            self.show_temp(self.temp_out_image, temp_out)
+
+        # Update weather image
+        file_name = "./images/" + image_type + ".png"
+        pixmap = QtGui.QPixmap(file_name)
+        self.weather_image.setPixmap(pixmap)
+
     def closeEvent(self, event):
-        # On close, hide and show 'still runnning' message
+        """
+        On close, hide and show 'still runnning' message
+        """
+
         self.hide()
         QtCore.QTimer.singleShot(100, self.tray_icon.message)
         event.ignore()

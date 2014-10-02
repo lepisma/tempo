@@ -7,7 +7,10 @@ def current_weather(API_KEY, lat, lng):
     Returns current weather conditions
     """
 
-    forecast = forecastio.load_forecast(API_KEY, lat, lng)
-    current = forecast.currently()
+    try:
+        forecast = forecastio.load_forecast(API_KEY, lat, lng)
+        current = forecast.currently()
+    except Error as e:
+        return -1
 
     return current
