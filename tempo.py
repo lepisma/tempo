@@ -6,12 +6,15 @@ import time, sys
 import json
 
 from outweather import current_weather
+from inweather import inside_temperature
 
 try:
     config = json.load(open("config.json"))
-except Error:
+except Exception:
     print("Error in reading config file.")
     sys.exit()
+
+arduino_port = "COM6"
 
 class RequestThread(QtCore.QThread):
     """
@@ -32,7 +35,7 @@ class RequestThread(QtCore.QThread):
                 temp_out = (weather.temperature - 32.0) * (5.0 / 9.0)
 
             # Requesting arduino
-            
+            temp_in = inside_temperature(arduino_port)
 
             # Emit signal
             self.emit(QtCore.SIGNAL("update_gui(PyQt_PyObject, float, float)"), image_type, temp_out, temp_in)
@@ -149,7 +152,7 @@ class MainWindow(QtGui.QWidget):
         Shows the temperature in celsius in given label
         """
 
-        pass
+        label.setText(str(value) + "C")
 
     def update_gui(self, image_type, temp_out, temp_in):
         """

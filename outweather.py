@@ -10,7 +10,7 @@ def current_weather(API_KEY, lat, lng):
     try:
         forecast = forecastio.load_forecast(API_KEY, lat, lng)
         current = forecast.currently()
-    except Error as e:
+    except Exception:
         return -1
 
     return current
