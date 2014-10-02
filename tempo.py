@@ -41,7 +41,7 @@ class RequestThread(QtCore.QThread):
             # Emit signal
             self.emit(QtCore.SIGNAL("update_gui(PyQt_PyObject, float, float)"), image_type, temp_out, temp_in)
             # Wait
-            time.sleep(4)
+            time.sleep(60)
 
 class RightClickMenu(QtGui.QMenu):
     """
