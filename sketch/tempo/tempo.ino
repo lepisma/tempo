@@ -6,22 +6,22 @@ and returns the temperature after sending 'ok\n'
 
 float temp;
 int reading;
+int temp_pin = 0;
 
 void setup()
 {
-  analogReference(INTERNAL);
-  int temp_pin = 0;
+  //analogReference(INTERNAL);
   Serial.begin(9600);
 }
 
 void loop()
 {
   if (Serial.available() > 0){
-    incoming = Serial.read();
+    char incoming = Serial.read();
     if (incoming == 'A'){
       // Reading
       reading = analogRead(temp_pin);
-      temp = reading / 9.31;
+      temp = (500 * reading ) / 1024;
       // Sending
       Serial.println("ok");
       Serial.println(temp);

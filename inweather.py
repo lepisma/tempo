@@ -14,8 +14,9 @@ def inside_temperature(port):
         ser.write('A')
 
         get = ser.readline()
-        if get == "ok\n":
-            temp = float(ser.readline())
+        if get == "ok\r\n":
+            rec = ser.readline()
+            temp = float(rec.split("\r")[0])
         else:
             raise Exception()
     except Exception:

@@ -14,7 +14,7 @@ except Exception:
     print("Error in reading config file.")
     sys.exit()
 
-arduino_port = "COM6"
+arduino_port = config["port"]
 
 class RequestThread(QtCore.QThread):
     """
@@ -35,13 +35,12 @@ class RequestThread(QtCore.QThread):
                 temp_out = weather.temperature
 
             # Requesting arduino
-            #temp_in = inside_temperature(arduino_port)
-            temp_in = -1
+            temp_in = inside_temperature(arduino_port)
 
             # Emit signal
             self.emit(QtCore.SIGNAL("update_gui(PyQt_PyObject, float, float)"), image_type, temp_out, temp_in)
             # Wait
-            time.sleep(60)
+            time.sleep(600)
 
 class RightClickMenu(QtGui.QMenu):
     """
