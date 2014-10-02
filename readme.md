@@ -1,13 +1,16 @@
 #tempo
 
-Weather dash with inside and outside temperature display.
+Weather dash with outside and inside (room) temperature display.
+
+![screen](./images/screen.png)
 
 ###Because you :
 
 - are too lazy to move your lower limbs,
-- have free internet,
+- want to know when to open door and / or windows,
+- have free Internet and time,
 - have an [LM35](http://www.ti.com/product/lm35 "TI LM35") eating dust.
 
 ---
 
-![](./images/logos.png)
+![Thanks](./images/logos.png)
